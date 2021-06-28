@@ -1,0 +1,19 @@
+version: "3.9"
+services: 
+    api:
+        image: nefcanto/dotnet-dev:latest
+        restart: always
+        container_name: SocialApi
+        working_dir: /Api
+        environment: 
+            - HolismProjectsRoot=/HolismDotNet
+        volumes: 
+            - c:\HolismDotNet\Framework:/HolismDotNet/Framework
+            - .:/Api
+        ports: 
+            - "5000:5000"
+        command: >
+            sh -c
+            "
+            tail -f /dev/null                       
+            "    
