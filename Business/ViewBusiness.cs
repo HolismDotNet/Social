@@ -2,7 +2,6 @@
 using Holism.Entity.Business;
 using Holism.DataAccess;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using Holism.Social.DataAccess;
 using Holism.Social.Models;
 using System;
@@ -15,33 +14,23 @@ namespace Holism.Social.Business
 {
     public class ViewBusiness : Business<View, View>
     {
-        protected override Repository<View> ModelRepository => RepositoryFactory.ViewFrom(socialDatabaseName);
+        protected override Repository<View> WriteRepository => Repository.View;
 
-        protected override ViewRepository<View> ViewRepository => RepositoryFactory.ViewFrom(socialDatabaseName);
-
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public ViewBusiness(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
+        protected override ReadRepository<View> ReadRepository => Repository.View;
 
         public void RegisterView(Guid userGuid, string entityType, Guid entityGuid)
         {
             var existingView = GetView(userGuid, entityType, entityGuid);
-            if (existingView.IsNull())
+            if (existingView == null)
             {
                 View(entityType, userGuid, entityGuid);
             }
-            new ViewCountBusiness(socialDatabaseName, entityDatabaseName).IncreaseViewsCount(entityType, entityGuid);
+            new ViewCountBusiness().IncreaseViewsCount(entityType, entityGuid);
         }
 
         public object[] InflateWithViewsInfo(string entityType, object[] objects, Guid userGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             if (objects.Length == 0)
             {
                 return objects;
@@ -51,12 +40,12 @@ namespace Holism.Social.Business
             var entityGuguidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
             var inflatedProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
             var entityGuids = objects.Select(i => (Guid)entityGuguidProperty.GetValue(i)).ToList();
-            var views = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+            var views = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var @object in objects)
             {
                 var view = views.FirstOrDefault(i => i.EntityGuid == (Guid)entityGuguidProperty.GetValue(@object));
                 ExpandoObject expando = (ExpandoObject)inflatedProperty.GetValue(@object);
-                expando.AddProperty("Viewed", view.IsNotNull() ? true : false);
+                expando.AddProperty("Viewed", view != null ? true : false);
                 inflatedProperty.SetValue(@object, expando);
             }
             return objects;
@@ -64,8 +53,8 @@ namespace Holism.Social.Business
 
         public object InflateWithViewsInfo(string entityType, object @object, Guid userGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            if (@object.IsNull())
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            if (@object == null)
             {
                 return @object;
             }
@@ -74,9 +63,9 @@ namespace Holism.Social.Business
             var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
             var relatedItemsProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
             var entityGuid = (Guid)guidProperty.GetValue(@object);
-            var view = ViewRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
+            var view = ReadRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
             ExpandoObject expando = (ExpandoObject)relatedItemsProperty.GetValue(@object);
-            expando.AddProperty("Viewed", view.IsNotNull() ? true : false);
+            expando.AddProperty("Viewed", view != null ? true : false);
             relatedItemsProperty.SetValue(@object, expando);
             return @object;
         }
@@ -84,57 +73,57 @@ namespace Holism.Social.Business
         private void View(string entityType, Guid userGuid, Guid entityGuid)
         {
             var existingView = GetView(userGuid, entityType, entityGuid);
-            if (existingView.IsNotNull())
+            if (existingView != null)
             {
                 return;
             }
             var view = new View();
-            view.EntityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            view.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             view.EntityGuid = entityGuid;
             view.UserGuid = userGuid;
-            ModelRepository.Create(view);
-            new ViewCountBusiness(socialDatabaseName, entityDatabaseName).IncreaseViewsCount(entityType, entityGuid);
+            WriteRepository.Create(view);
+            new ViewCountBusiness().IncreaseViewsCount(entityType, entityGuid);
         }
 
         private View GetView(Guid userGuid, string entityType, Guid entityGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var view = ViewRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var view = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
             return view;
         }
 
-        public ListResult<View> GetViewedItems(Guid userGuid, string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<View> GetViewedItems(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var viewdItems = ViewRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListOptionsAndGetTotalCount(listOptions);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var viewdItems = ReadRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
             return viewdItems;
         }
 
-        public ListResult<Guid> GetViewedItemGuids(Guid userGuid, string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Guid> GetViewedItemGuids(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            var viewdItemGuids = GetViewedItems(userGuid, entityType, listOptions, excludedEntityGuids).BulkConvert<View, Guid>(i => i.Select(x => x.EntityGuid).ToList());
+            var viewdItemGuids = GetViewedItems(userGuid, entityType, listParameters, excludedEntityGuids).BulkConvert<View, Guid>(i => i.Select(x => x.EntityGuid).ToList());
             return viewdItemGuids;
         }
 
         public void RemoveViews(string entityType, Guid entityGuid)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             var query = $@"
 delete
-from {ModelRepository.TableName}
+from {WriteRepository.TableName}
 where EntityTypeGuid = '{entityTypeGuid}'
 and EntityGuid = '{entityGuid}'
             ";
-            ModelRepository.Run(query);
+            WriteRepository.Run(query);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var orphanRecords = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var orphanRecord in orphanRecords)
             {
-                ModelRepository.Delete(orphanRecord);
+                WriteRepository.Delete(orphanRecord);
             }
         }
     }

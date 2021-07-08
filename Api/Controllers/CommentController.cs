@@ -8,27 +8,27 @@ namespace Holism.Social.UserApi.Controllers
 {
     public class CommentController : DefaultController
     {
-        string socialDatabaseName;
+        string ;
 
-        string entityDatabaseName;
+        string ;
 
-        public CommentController(string socialDatabaseName = null, string entityDatabaseName = null)
+        public CommentController(string  = null, string  = null)
         {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
+            this. = ;
+            this. = ;
         }
 
         [HttpPost]
         public IActionResult ToggleLike(Guid commentGuid)
         {
-            new LikeBusiness(socialDatabaseName, entityDatabaseName).ToggleLike(UserGuid, CommentBusiness.EntityType, commentGuid);
+            new LikeBusiness().ToggleLike(UserGuid, CommentBusiness.EntityType, commentGuid);
             return OkJson();
         }
 
         [HttpPost]
         public IActionResult ToggleDislike(Guid commentGuid)
         {
-            new DislikeBusiness(socialDatabaseName, entityDatabaseName).ToggleDislike(UserGuid, CommentBusiness.EntityType, commentGuid);
+            new DislikeBusiness().ToggleDislike(UserGuid, CommentBusiness.EntityType, commentGuid);
             return OkJson();
         }
 

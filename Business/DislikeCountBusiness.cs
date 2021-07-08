@@ -2,7 +2,6 @@
 using Holism.Entity.Business;
 using Holism.DataAccess;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using Holism.Social.DataAccess;
 using Holism.Social.Models;
 using System;
@@ -14,33 +13,23 @@ namespace Holism.Social.Business
 {
     public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
     {
-        protected override Repository<DislikeCount> ModelRepository => RepositoryFactory.DislikeCountFrom(socialDatabaseName);
+        protected override Repository<DislikeCount> WriteRepository => Repository.DislikeCount;
 
-        protected override ViewRepository<DislikeCount> ViewRepository => RepositoryFactory.DislikeCountFrom(socialDatabaseName);
+        protected override ReadRepository<DislikeCount> ReadRepository => Repository.DislikeCount;
 
         private const string DislikesCountPropertyName = "DislikesCount";
 
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public DislikeCountBusiness(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
-
         private DislikeCount GetDislikeCount(string entityType, Guid entityGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var likeCount = ViewRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var likeCount = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
             return likeCount;
         }
 
         public Dictionary<Guid, long> GetDislikeCounts(string entityType, List<Guid> entityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var likeCounts = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var likeCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
             var result = likeCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
             return result;
         }
@@ -48,25 +37,25 @@ namespace Holism.Social.Business
         public long GetDislikeCounts(string entityType, Guid entityGuid)
         {
             var likeCounts = GetDislikeCount(entityType, entityGuid);
-            if (likeCounts.IsNull())
+            if (likeCounts == null)
             {
                 return 0;
             }
             return likeCounts.Count;
         }
 
-        public ListResult<DislikeCount> GetMostDisliked(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<DislikeCount> GetMostDisliked(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            listOptions.AddFilter<DislikeCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
-            listOptions.AddSort<DislikeCount>(i => i.Count, SortDirection.Descending);
-            var likeCounts = ViewRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListOptionsAndGetTotalCount(listOptions);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            listParameters.AddFilter<DislikeCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
+            listParameters.AddSort<DislikeCount>(i => i.Count, SortDirection.Descending);
+            var likeCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
             return likeCounts;
         }
 
-        public ListResult<Guid> GetMostDislikedGuids(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Guid> GetMostDislikedGuids(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            var mostDisliked = GetMostDisliked(entityType, listOptions, excludedEntityGuids);
+            var mostDisliked = GetMostDisliked(entityType, listParameters, excludedEntityGuids);
             var mostDislikedGuids = mostDisliked.Convert(i => i.EntityGuid);
             return mostDislikedGuids;
         }
@@ -96,7 +85,7 @@ namespace Holism.Social.Business
 
         public void InflateWithDislikesCount(string entityType, object entity)
         {
-            if (entity.IsNull())
+            if (entity == null)
             {
                 return;
             }
@@ -114,51 +103,51 @@ namespace Holism.Social.Business
         public void IncreaseDislikesCount(string entityType, Guid entityGuid)
         {
             var likeCount = GetDislikeCount(entityType, entityGuid);
-            if (likeCount.IsNull())
+            if (likeCount == null)
             {
                 likeCount = new DislikeCount();
-                likeCount.EntityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+                likeCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
                 likeCount.EntityGuid = entityGuid;
                 likeCount.Count = 1;
-                ModelRepository.Create(likeCount);
+                WriteRepository.Create(likeCount);
                 return;
             }
             likeCount.Count += 1;
-            ModelRepository.Update(likeCount);
+            WriteRepository.Update(likeCount);
         }
 
         public void DecreaseDislikesCount(string entityType, Guid entityGuid)
         {
             var likeCount = GetDislikeCount(entityType, entityGuid);
-            if (likeCount.IsNull())
+            if (likeCount == null)
             {
                 return;
             }
             likeCount.Count -= 1;
             if (likeCount.Count < 1)
             {
-                ModelRepository.Delete(likeCount);
+                WriteRepository.Delete(likeCount);
             }
             else
             {
-                ModelRepository.Update(likeCount);
+                WriteRepository.Update(likeCount);
             }
         }
 
         public void RemoveDislikeCount(string entityType, Guid entityGuid)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             var dislikeCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-            ModelRepository.Delete(dislikeCount);
+            WriteRepository.Delete(dislikeCount);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var orphanRecords = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var orphanRecord in orphanRecords)
             {
-                ModelRepository.Delete(orphanRecord);
+                WriteRepository.Delete(orphanRecord);
             }
         }
     }

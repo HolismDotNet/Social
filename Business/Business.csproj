@@ -1,22 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Label="Globals">
-    <SccProjectName>SAK</SccProjectName>
-    <SccProvider>SAK</SccProvider>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccLocalPath>SAK</SccLocalPath>
-  </PropertyGroup>
+  <Import Project="/HolismDotNet/Framework/DotNet.targets" />
 
   <PropertyGroup>
     <AssemblyName>Holism.Social.Business</AssemblyName>
     <RootNamespace>Holism.Social.Business</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="/HolismDotNet\Api\ProjectBusiness.targets" />
-  <Import Project="//HolismDotNet/Framework/Reusable.targets" />
-  <Import Project="/HolismDotNet\Identities\Project.targets" />
-  <Import Project="/HolismDotNet\Cloud\ProjectAzure.targets" />
-  <Import Project="//HolismDotNet/Framework/Media.targets" />
-  <Import Project="/HolismDotNet\Entity\Project.targets" />
-
+  <Import Project="/HolismDotNet/Framework/Business.targets" />
+  <Import Project="/HolismDotNet/Framework/Reusable.targets" />
+  <Import Project="/HolismDotNet/Entity/Project.targets" />
 </Project>

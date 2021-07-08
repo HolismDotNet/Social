@@ -2,7 +2,6 @@
 using Holism.Entity.Business;
 using Holism.DataAccess;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using Holism.Social.DataAccess;
 using Holism.Social.Models;
 using System;
@@ -14,33 +13,23 @@ namespace Holism.Social.Business
 {
     public class ViewCountBusiness : Business<ViewCount, ViewCount>
     {
-        protected override Repository<ViewCount> ModelRepository => RepositoryFactory.ViewCountFrom(socialDatabaseName);
+        protected override Repository<ViewCount> WriteRepository => Repository.ViewCount;
 
-        protected override ViewRepository<ViewCount> ViewRepository => RepositoryFactory.ViewCountFrom(socialDatabaseName);
+        protected override ReadRepository<ViewCount> ReadRepository => Repository.ViewCount;
 
         private const string ViewsCountPropertyName = "ViewsCount";
 
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public ViewCountBusiness(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
-
         private ViewCount GetViewCount(string entityType, Guid entityGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var viewCounts = ViewRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var viewCounts = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
             return viewCounts;
         }
 
         public Dictionary<Guid, long> GetViewCounts(string entityType, List<Guid> entityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var viewCounts = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var viewCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
             var result = viewCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
             return result;
         }
@@ -48,25 +37,25 @@ namespace Holism.Social.Business
         public long GetViewCounts(string entityType, Guid entityGuid)
         {
             var viewCounts = GetViewCount(entityType, entityGuid);
-            if (viewCounts.IsNull())
+            if (viewCounts == null)
             {
                 return 0;
             }
             return viewCounts.Count;
         }
 
-        public ListResult<ViewCount> GetMostViewed(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<ViewCount> GetMostViewed(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            listOptions.AddFilter<ViewCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
-            listOptions.AddSort<ViewCount>(i => i.Count, SortDirection.Descending);
-            var viewCounts = ViewRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListOptionsAndGetTotalCount(listOptions);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            listParameters.AddFilter<ViewCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
+            listParameters.AddSort<ViewCount>(i => i.Count, SortDirection.Descending);
+            var viewCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
             return viewCounts;
         }
 
-        public ListResult<Guid> GetMostViewedGuids(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Guid> GetMostViewedGuids(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            var mostViewed = GetMostViewed(entityType, listOptions, excludedEntityGuids);
+            var mostViewed = GetMostViewed(entityType, listParameters, excludedEntityGuids);
             var mostViewedGuids = mostViewed.Convert(i => i.EntityGuid);
             return mostViewedGuids;
         }
@@ -96,7 +85,7 @@ namespace Holism.Social.Business
 
         public void InflateWithViewsCount(string entityType, object entity)
         {
-            if (entity.IsNull())
+            if (entity == null)
             {
                 return;
             }
@@ -114,33 +103,33 @@ namespace Holism.Social.Business
         public void IncreaseViewsCount(string entityType, Guid entityGuid)
         {
             var viewCount = GetViewCount(entityType, entityGuid);
-            if (viewCount.IsNull())
+            if (viewCount == null)
             {
                 viewCount = new ViewCount();
-                viewCount.EntityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+                viewCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
                 viewCount.EntityGuid = entityGuid;
                 viewCount.Count = 1;
-                ModelRepository.Create(viewCount);
+                WriteRepository.Create(viewCount);
                 return;
             }
             viewCount.Count += 1;
-            ModelRepository.Update(viewCount);
+            WriteRepository.Update(viewCount);
         }
 
         public void RemoveViewCount(string entityType, Guid entityGuid)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             var viewCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-            ModelRepository.Delete(viewCount);
+            WriteRepository.Delete(viewCount);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var orphanRecords = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var orphanRecord in orphanRecords)
             {
-                ModelRepository.Delete(orphanRecord);
+                WriteRepository.Delete(orphanRecord);
             }
         }
     }

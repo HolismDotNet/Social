@@ -6,40 +6,31 @@ namespace Holism.Social.Business
 {
     public class Helper
     {
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public Helper(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
 
         public void RemoveEntity(string entityType, Guid entityGuid)
         {
-            new LikeBusiness(socialDatabaseName, entityDatabaseName).RemoveLikes(entityType, entityGuid);
-            new LikeCountBusiness(socialDatabaseName, entityDatabaseName).RemoveLikeCount(entityType, entityGuid);
-            new DislikeBusiness(socialDatabaseName, entityDatabaseName).RemoveDislikes(entityType, entityGuid);
-            new DislikeCountBusiness(socialDatabaseName, entityDatabaseName).RemoveDislikeCount(entityType, entityGuid);
-            new CommentBusiness(socialDatabaseName, entityDatabaseName).RemoveComments(entityType, entityGuid);
-            new CommentCountBusiness(socialDatabaseName, entityDatabaseName).RemoveCommentCount(entityType, entityGuid);
-            new ViewBusiness(socialDatabaseName, entityDatabaseName).RemoveViews(entityType, entityGuid);
-            new ViewCountBusiness(socialDatabaseName, entityDatabaseName).RemoveViewCount(entityType, entityGuid);
-            //new ExcludedEntityBusiness(socialDatabaseName, entityDatabaseName).Include(entityType, entityGuid);
+            new LikeBusiness().RemoveLikes(entityType, entityGuid);
+            new LikeCountBusiness().RemoveLikeCount(entityType, entityGuid);
+            new DislikeBusiness().RemoveDislikes(entityType, entityGuid);
+            new DislikeCountBusiness().RemoveDislikeCount(entityType, entityGuid);
+            new CommentBusiness().RemoveComments(entityType, entityGuid);
+            new CommentCountBusiness().RemoveCommentCount(entityType, entityGuid);
+            new ViewBusiness().RemoveViews(entityType, entityGuid);
+            new ViewCountBusiness().RemoveViewCount(entityType, entityGuid);
+            //new ExcludedEntityBusiness().Include(entityType, entityGuid);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            new LikeBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new LikeCountBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new DislikeBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new DislikeCountBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new CommentBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new CommentCountBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new ViewBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            new ViewCountBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
-            //new ExcludedEntityBusiness(socialDatabaseName, entityDatabaseName).RemoveOrphanEntities(entityType, entityGuids);
+            new LikeBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new LikeCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new DislikeBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new DislikeCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new CommentBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new CommentCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new ViewBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            new ViewCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
+            //new ExcludedEntityBusiness().RemoveOrphanEntities(entityType, entityGuids);
         }
 
         public void Inflate(string entityType, object entity,Guid userGuid, params SocialItem[] socialItems)
@@ -49,13 +40,13 @@ namespace Holism.Social.Business
                 switch (socialItem)
                 {
                     case SocialItem.Like:
-                        new LikeBusiness(socialDatabaseName, entityDatabaseName).InflateWithLikesInfo(entityType, entity, userGuid);
+                        new LikeBusiness().InflateWithLikesInfo(entityType, entity, userGuid);
                         break;
                     case SocialItem.Dislike:
-                        new DislikeBusiness(socialDatabaseName, entityDatabaseName).InflateWithDislikesInfo(entityType, entity, userGuid);
+                        new DislikeBusiness().InflateWithDislikesInfo(entityType, entity, userGuid);
                         break;
                     case SocialItem.View:
-                        new ViewBusiness(socialDatabaseName, entityDatabaseName).InflateWithViewsInfo(entityType, entity, userGuid);
+                        new ViewBusiness().InflateWithViewsInfo(entityType, entity, userGuid);
                         break;
                     case SocialItem.Comment:
                         break;

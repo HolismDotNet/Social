@@ -1,6 +1,6 @@
 ﻿using Holism.DataAccess;
+using Holism.Models;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +17,8 @@ namespace Holism.Social.Business
 
         public ListResult<Entity> GetMostLiked(Guid? userGuid, int? pageNumber = null, int? pageSize = null)
         {
-            var listOptions = ListOptions.Create(pageNumber, pageSize);
-            var mostLikedGuids = new LikeCountBusiness().GetMostLikedGuids(EntityType, listOptions, ExcludedEntityGuidsProvider?.Invoke());
+            var listParameters = ListParameters.Create(pageNumber, pageSize);
+            var mostLikedGuids = new LikeCountBusiness().GetMostLikedGuids(EntityType, listParameters, ExcludedEntityGuidsProvider?.Invoke());
             var mostLikedEntities = mostLikedGuids.BulkConvert(guids => EntityProvider.Invoke(guids));
             mostLikedEntities.Data = KeepOriginalOrder(mostLikedEntities.Data, mostLikedGuids.Data);
             if (userGuid.HasValue)
@@ -30,8 +30,8 @@ namespace Holism.Social.Business
 
         public ListResult<Entity> GetMostViewed(Guid? userGuid, int? pageNumber = null, int? pageSize = null)
         {
-            var listOptions = ListOptions.Create(pageNumber, pageSize);
-            var mostViewedGuids = new ViewCountBusiness().GetMostViewedGuids(EntityType, listOptions, ExcludedEntityGuidsProvider?.Invoke());
+            var listParameters = ListParameters.Create(pageNumber, pageSize);
+            var mostViewedGuids = new ViewCountBusiness().GetMostViewedGuids(EntityType, listParameters, ExcludedEntityGuidsProvider?.Invoke());
             var mostViewedEntities = mostViewedGuids.BulkConvert(guids => EntityProvider.Invoke(guids));
             mostViewedEntities.Data = KeepOriginalOrder(mostViewedEntities.Data, mostViewedGuids.Data);
             if (userGuid.HasValue)

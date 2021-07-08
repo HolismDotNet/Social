@@ -2,7 +2,6 @@
 using Holism.Entity.Business;
 using Holism.DataAccess;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using Holism.Social.DataAccess;
 using Holism.Social.Models;
 using System;
@@ -15,24 +14,14 @@ namespace Holism.Social.Business
 {
     public class LikeBusiness : Business<Like, Like>
     {
-        protected override Repository<Like> ModelRepository => RepositoryFactory.LikeFrom(socialDatabaseName);
+        protected override Repository<Like> WriteRepository => Repository.Like;
 
-        protected override ViewRepository<Like> ViewRepository => RepositoryFactory.LikeFrom(socialDatabaseName);
-
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public LikeBusiness(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
+        protected override ReadRepository<Like> ReadRepository => Repository.Like;
 
         public void ToggleLike(Guid userGuid, string entityType, Guid entityGuid)
         {
             var existingLike = GetLike(userGuid, entityType, entityGuid);
-            if (existingLike.IsNull())
+            if (existingLike == null)
             {
                 Like(entityType, userGuid, entityGuid);
             }
@@ -44,7 +33,7 @@ namespace Holism.Social.Business
 
         public object[] InflateWithLikesInfo(string entityType, object[] objects, Guid userGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             if (objects.Length == 0)
             {
                 return objects;
@@ -54,12 +43,12 @@ namespace Holism.Social.Business
             var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
             var inflatedProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
             var entityGuids = objects.Select(i => (Guid)guidProperty.GetValue(i)).ToList();
-            var likes = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+            var likes = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var @object in objects)
             {
                 var like = likes.FirstOrDefault(i => i.EntityGuid == (Guid)guidProperty.GetValue(@object));
                 ExpandoObject expando = (ExpandoObject)inflatedProperty.GetValue(@object);
-                expando.AddProperty("Liked", like.IsNotNull() ? true : false);
+                expando.AddProperty("Liked", like != null ? true : false);
                 inflatedProperty.SetValue(@object, expando);
             }
             return objects;
@@ -67,8 +56,8 @@ namespace Holism.Social.Business
 
         public object InflateWithLikesInfo(string entityType, object @object, Guid userGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            if (@object.IsNull())
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            if (@object == null)
             {
                 return @object;
             }
@@ -77,9 +66,9 @@ namespace Holism.Social.Business
             var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
             var relatedItemsProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
             var entityGuid = (Guid)guidProperty.GetValue(@object);
-            var like = ViewRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
+            var like = ReadRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
             ExpandoObject expando = (ExpandoObject)relatedItemsProperty.GetValue(@object);
-            expando.AddProperty("Liked", like.IsNotNull() ? true : false);
+            expando.AddProperty("Liked", like != null ? true : false);
             relatedItemsProperty.SetValue(@object, expando);
             return @object;
         }
@@ -87,69 +76,69 @@ namespace Holism.Social.Business
         private void Like(string entityType, Guid userGuid, Guid entityGuid)
         {
             var existingLike = GetLike(userGuid, entityType, entityGuid);
-            if (existingLike.IsNotNull())
+            if (existingLike != null)
             {
                 return;
             }
             var like = new Like();
-            like.EntityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            like.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             like.EntityGuid = entityGuid;
             like.UserGuid = userGuid;
-            ModelRepository.Create(like);
-            new LikeCountBusiness(socialDatabaseName, entityDatabaseName).IncreaseLikesCount(entityType, entityGuid);
-            new DislikeBusiness(socialDatabaseName, entityDatabaseName).RemoveDislike(entityType, userGuid, entityGuid);
+            WriteRepository.Create(like);
+            new LikeCountBusiness().IncreaseLikesCount(entityType, entityGuid);
+            new DislikeBusiness().RemoveDislike(entityType, userGuid, entityGuid);
         }
 
         public void RemoveLike(string entityType, Guid userGuid, Guid entityGuid)
         {
             var existingLike = GetLike(userGuid, entityType, entityGuid);
-            if (existingLike.IsNull())
+            if (existingLike == null)
             {
                 return;
             }
-            ModelRepository.Delete(existingLike);
-            new LikeCountBusiness(socialDatabaseName, entityDatabaseName).DecreaseLikesCount(entityType, entityGuid);
+            WriteRepository.Delete(existingLike);
+            new LikeCountBusiness().DecreaseLikesCount(entityType, entityGuid);
         }
 
         private Like GetLike(Guid userGuid, string entityType, Guid entityGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var like = ViewRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var like = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
             return like;
         }
 
-        public ListResult<Like> GetLikedItems(Guid userGuid, string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Like> GetLikedItems(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var likedItems = ViewRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListOptionsAndGetTotalCount(listOptions);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var likedItems = ReadRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
             return likedItems;
         }
 
-        public ListResult<Guid> GetLikedItemGuids(Guid userGuid, string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Guid> GetLikedItemGuids(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            var likedItemGuids = GetLikedItems(userGuid, entityType, listOptions, excludedEntityGuids).BulkConvert<Like, Guid>(i => i.Select(x => x.EntityGuid).ToList());
+            var likedItemGuids = GetLikedItems(userGuid, entityType, listParameters, excludedEntityGuids).BulkConvert<Like, Guid>(i => i.Select(x => x.EntityGuid).ToList());
             return likedItemGuids;
         }
 
         public void RemoveLikes(string entityType, Guid entityGuid)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             var query = $@"
 delete
-from {ModelRepository.TableName}
+from {WriteRepository.TableName}
 where EntityTypeGuid = '{entityTypeGuid}'
 and EntityGuid = '{entityGuid}'
             ";
-            ModelRepository.Run(query);
+            WriteRepository.Run(query);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var orphanRecords = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var orphanRecord in orphanRecords)
             {
-                ModelRepository.Delete(orphanRecord);
+                WriteRepository.Delete(orphanRecord);
             }
         }
     }

@@ -2,7 +2,6 @@
 using Holism.Entity.Business;
 using Holism.DataAccess;
 using Holism.Framework;
-using Holism.Framework.Extensions;
 using Holism.Social.DataAccess;
 using Holism.Social.Models;
 using System;
@@ -13,33 +12,23 @@ namespace Holism.Social.Business
 {
     public class CommentCountBusiness : Business<CommentCount, CommentCount>
     {
-        protected override Repository<CommentCount> ModelRepository => RepositoryFactory.CommentCountFrom(socialDatabaseName);
+        protected override Repository<CommentCount> WriteRepository => Repository.CommentCount;
 
-        protected override ViewRepository<CommentCount> ViewRepository => RepositoryFactory.CommentCountFrom(socialDatabaseName);
+        protected override ReadRepository<CommentCount> ReadRepository => Repository.CommentCount;
 
         private const string CommentsCountPropertyName = "CommentsCount";
 
-        string socialDatabaseName;
-
-        string entityDatabaseName;
-
-        public CommentCountBusiness(string socialDatabaseName = null, string entityDatabaseName = null)
-        {
-            this.socialDatabaseName = socialDatabaseName;
-            this.entityDatabaseName = entityDatabaseName;
-        }
-
         private CommentCount GetCommentCount(string entityType, Guid entityGuid)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var commentCount = ViewRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var commentCount = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
             return commentCount;
         }
 
         public Dictionary<Guid, long> GetCommentCounts(string entityType, List<Guid> entityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var commentCounts = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var commentCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
             var result = commentCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
             return result;
         }
@@ -47,25 +36,25 @@ namespace Holism.Social.Business
         public long GetCommentCounts(string entityType, Guid entityGuid)
         {
             var commentCounts = GetCommentCount(entityType, entityGuid);
-            if (commentCounts.IsNull())
+            if (commentCounts == null)
             {
                 return 0;
             }
             return commentCounts.Count;
         }
 
-        public ListResult<CommentCount> GetMostCommented(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<CommentCount> GetMostCommented(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            Guid entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            listOptions.AddFilter<CommentCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
-            listOptions.AddSort<CommentCount>(i => i.Count, SortDirection.Descending);
-            var commentCounts = ViewRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListOptionsAndGetTotalCount(listOptions);
+            Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            listParameters.AddFilter<CommentCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
+            listParameters.AddSort<CommentCount>(i => i.Count, SortDirection.Descending);
+            var commentCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
             return commentCounts;
         }
 
-        public ListResult<Guid> GetMostCommentedGuids(string entityType, ListOptions listOptions, List<Guid> excludedEntityGuids)
+        public ListResult<Guid> GetMostCommentedGuids(string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
         {
-            var mostCommented = GetMostCommented(entityType, listOptions, excludedEntityGuids);
+            var mostCommented = GetMostCommented(entityType, listParameters, excludedEntityGuids);
             var mostCommentedGuids = mostCommented.Convert(i => i.EntityGuid);
             return mostCommentedGuids;
         }
@@ -95,7 +84,7 @@ namespace Holism.Social.Business
 
         public void InflateWithCommentsCount(string entityType, object entity)
         {
-            if (entity.IsNull())
+            if (entity == null)
             {
                 return;
             }
@@ -113,51 +102,51 @@ namespace Holism.Social.Business
         public void IncreaseCommentsCount(string entityType, Guid entityGuid)
         {
             var commentCount = GetCommentCount(entityType, entityGuid);
-            if (commentCount.IsNull())
+            if (commentCount == null)
             {
                 commentCount = new CommentCount();
-                commentCount.EntityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+                commentCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
                 commentCount.EntityGuid = entityGuid;
                 commentCount.Count = 1;
-                ModelRepository.Create(commentCount);
+                WriteRepository.Create(commentCount);
                 return;
             }
             commentCount.Count += 1;
-            ModelRepository.Update(commentCount);
+            WriteRepository.Update(commentCount);
         }
 
         public void DecreaseCommentsCount(string entityType, Guid entityGuid)
         {
             var commentCount = GetCommentCount(entityType, entityGuid);
-            if (commentCount.IsNull())
+            if (commentCount == null)
             {
                 return;
             }
             commentCount.Count -= 1;
             if (commentCount.Count < 1)
             {
-                ModelRepository.Delete(commentCount);
+                WriteRepository.Delete(commentCount);
             }
             else
             {
-                ModelRepository.Update(commentCount);
+                WriteRepository.Update(commentCount);
             }
         }
 
         public void RemoveCommentCount(string entityType, Guid entityGuid)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             var commentCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-            ModelRepository.Delete(commentCount);
+            WriteRepository.Delete(commentCount);
         }
 
         public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
         {
-            var entityTypeGuid = new EntityTypeBusiness(entityDatabaseName).GetGuid(entityType);
-            var orphanRecords = ViewRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+            var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
+            var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
             foreach (var orphanRecord in orphanRecords)
             {
-                ModelRepository.Delete(orphanRecord);
+                WriteRepository.Delete(orphanRecord);
             }
         }
     }
