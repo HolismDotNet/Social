@@ -1,109 +1,72 @@
+using Holism.Social.Models;
+using Holism.DataAccess;
+
 namespace Holism.Social.DataAccess
 {
-    public class RepositoryFactory
+    public class Repository
     {
-        public static Repositories.CommentRepository Comment
+        public static Repository<Comment> Comment
         {
             get
             {
-                return new Repositories.CommentRepository();
+                return new Holism.DataAccess.Repository<Comment>(new SocialContext());
             }
         }
 
-        public static Repositories.CommentRepository CommentFrom(string databaseName = null)
-        {
-            return new Repositories.CommentRepository(databaseName);
-        }
-
-        public static Repositories.CommentCountRepository CommentCount
+        public static Repository<CommentCount> CommentCount
         {
             get
             {
-                return new Repositories.CommentCountRepository();
+                return new Holism.DataAccess.Repository<CommentCount>(new SocialContext());
             }
         }
 
-        public static Repositories.CommentCountRepository CommentCountFrom(string databaseName = null)
-        {
-            return new Repositories.CommentCountRepository(databaseName);
-        }
-
-        public static Repositories.DislikeRepository Dislike
+        public static Repository<Dislike> Dislike
         {
             get
             {
-                return new Repositories.DislikeRepository();
+                return new Holism.DataAccess.Repository<Dislike>(new SocialContext());
             }
         }
 
-        public static Repositories.DislikeRepository DislikeFrom(string databaseName = null)
-        {
-            return new Repositories.DislikeRepository(databaseName);
-        }
-
-        public static Repositories.DislikeCountRepository DislikeCount
+        public static Repository<DislikeCount> DislikeCount
         {
             get
             {
-                return new Repositories.DislikeCountRepository();
+                return new Holism.DataAccess.Repository<DislikeCount>(new SocialContext());
             }
         }
 
-        public static Repositories.DislikeCountRepository DislikeCountFrom(string databaseName = null)
-        {
-            return new Repositories.DislikeCountRepository(databaseName);
-        }
-
-        public static Repositories.LikeRepository Like
+        public static Repository<Like> Like
         {
             get
             {
-                return new Repositories.LikeRepository();
+                return new Holism.DataAccess.Repository<Like>(new SocialContext());
             }
         }
 
-        public static Repositories.LikeRepository LikeFrom(string databaseName = null)
-        {
-            return new Repositories.LikeRepository(databaseName);
-        }
-
-        public static Repositories.LikeCountRepository LikeCount
+        public static Repository<LikeCount> LikeCount
         {
             get
             {
-                return new Repositories.LikeCountRepository();
+                return new Holism.DataAccess.Repository<LikeCount>(new SocialContext());
             }
         }
 
-        public static Repositories.LikeCountRepository LikeCountFrom(string databaseName = null)
-        {
-            return new Repositories.LikeCountRepository(databaseName);
-        }
-
-        public static Repositories.ViewRepository View
+        public static Repository<View> View
         {
             get
             {
-                return new Repositories.ViewRepository();
+                return new Holism.DataAccess.Repository<View>(new SocialContext());
             }
         }
 
-        public static Repositories.ViewRepository ViewFrom(string databaseName = null)
-        {
-            return new Repositories.ViewRepository(databaseName);
-        }
-
-        public static Repositories.ViewCountRepository ViewCount
+        public static Repository<ViewCount> ViewCount
         {
             get
             {
-                return new Repositories.ViewCountRepository();
+                return new Holism.DataAccess.Repository<ViewCount>(new SocialContext());
             }
-        }
-
-        public static Repositories.ViewCountRepository ViewCountFrom(string databaseName = null)
-        {
-            return new Repositories.ViewCountRepository(databaseName);
         }
     }
 }
