@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="/HolismDotNet/Framework/DotNet.targets" />
+
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Holism.Social.Models</AssemblyName>
+    <RootNamespace>Holism.Social.Models</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="/HolismDotNet/Framework/Models.targets" />
+  <Import Project="/HolismDotNet/Framework/Reusable.targets" />
 
 </Project>

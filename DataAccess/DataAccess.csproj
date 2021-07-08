@@ -1,7 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Holism.Social.DataAccess</AssemblyName>
+    <RootNamespace>Holism.Social.DataAccess</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="//HolismDotNet/Framework/Database.targets" />
+  <Import Project="//HolismDotNet/Framework/Reusable.targets" />
 
 </Project>

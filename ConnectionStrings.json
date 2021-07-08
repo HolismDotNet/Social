@@ -1,4 +1,3 @@
 {
-    "Master": "data source=Sql,1433;initial catalog=master;user id=SA; password=lksU2o412f7tBj58t07B;application name=Geo;",
-    "Geo": "data source=Sql,1433; initial catalog=Geo; user id=SA; password=lksU2o412f7tBj58t07B;application name=Geo;"
+  "Social": "data source=database,1433; initial catalog=Social; user id=SA; password=lksU2o412f7tBj58t07B;application name=Social;"
 }

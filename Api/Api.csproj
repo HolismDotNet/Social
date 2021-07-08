@@ -1,7 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Holism.Social.Api</AssemblyName>
+    <RootNamespace>Holism.Social.Api</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="//HolismDotNet/Framework/.targets" />
+  <Import Project="/HolismDotNet\Api\ProjectApi.targets" />
+  <Import Project="//HolismDotNet/Framework/Reusable.targets" />
+  <Import Project="/HolismDotNet\Identities\ProjectUserApi.targets" />
 
 </Project>

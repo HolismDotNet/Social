@@ -1,7 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyName>Holism.Social.Tests</AssemblyName>
+    <RootNamespace>Holism.Social.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <Import Project="/HolismDotNet\Quality\ProjectDatabaseTest.targets" />
 
 </Project>
