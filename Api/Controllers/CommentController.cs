@@ -1,22 +1,17 @@
-﻿using Holism.Social.Business;
+﻿using Holism.Api.Controllers;
+using Holism.Business;
+using Holism.Social.Business;
+using Holism.Social.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Holism.Social.UserApi.Controllers
+namespace Holism.Social.Api.Controllers
 {
-    public class CommentController : DefaultController
-    {
-        string ;
-
-        string ;
-
-        public CommentController(string  = null, string  = null)
-        {
-            this. = ;
-            this. = ;
-        }
+    public class CommentController : ReadController<Comment>
+    {        
+        public override ReadBusiness<Comment> ReadBusiness => new CommentBusiness();
 
         [HttpPost]
         public IActionResult ToggleLike(Guid commentGuid)
@@ -35,21 +30,21 @@ namespace Holism.Social.UserApi.Controllers
         [HttpPost]
         public IActionResult ToggleApprovedState(long id)
         {
-            ((CommentBusiness)Business).ToggleApprovedState(id);
+            //new CommentBusiness.ToggleApprovedState(id);
             return OkJson();
         }
 
         [HttpPost]
         public IActionResult ApproveItems(List<long> ids)
         {
-            ((CommentBusiness)Business).ApproveItems(ids);
+            //new CommentBusiness.ApproveItems(ids);
             return OkJson();
         }
 
         [HttpPost]
         public IActionResult DisapproveItems(List<long> ids)
         {
-            ((CommentBusiness)Business).DisapproveItems(ids);
+            //new CommentBusiness.DisapproveItems(ids);
             return OkJson();
         }
     }
