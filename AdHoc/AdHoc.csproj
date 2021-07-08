@@ -2,7 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Holism.Ticketing.AdHoc</AssemblyName>
+    <RootNamespace>Holism.Ticketing.AdHoc</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="/HolismDotNet/Framework/ProjectAdHoc.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Business\Business.csproj" />
+  </ItemGroup>
 
 </Project>
