@@ -47,9 +47,9 @@ namespace Holism.Social.Business
 
         public override void Validate(Comment model)
         {
-            model.EntityTypeGuid.Ensure().IsNumeric().And().IsGreaterThanZero();
-            model.EntityGuid.Ensure().IsNumeric().And().IsGreaterThanZero();
-            model.UserGuid.Ensure().IsNumeric("کاربر مشخص نشده است").And().IsGreaterThanZero("کاربر تعیین شده صحیح نیست");
+            model.EntityTypeGuid.Ensure().IsNotEmpty();
+            model.EntityGuid.Ensure().IsNotEmpty();
+            model.UserGuid.Ensure().IsNotEmpty();
             model.Body.Ensure().IsSomething("کامنت باید حتما متن داشته باشه");
         }
 
@@ -108,12 +108,12 @@ namespace Holism.Social.Business
         {
             new LikeCountBusiness().InflateWithLikesCount(EntityType, item);
             new DislikeCountBusiness().InflateWithDislikesCount(EntityType, item);
-            new UserBusiness().InflateWithUsernameAndProfilePictures(item);
+            //new UserBusiness().InflateWithUsernameAndProfilePictures(item);
             if (!ExpandoObjectExtensions.Has(item.RelatedItems, EntityInfoPropertyName))
             {
                 AugmentWithEntitiesInfo(new List<Comment> { item });
             }
-            item.RelatedItems.TimeAgo = PersianDateTime.GetTimeAgo(item.Date);
+            item.RelatedItems.TimeAgo = "todo: time ago";
             new EntityTypeBusiness().InflateWithEntityType(item);
         }
 
@@ -121,7 +121,7 @@ namespace Holism.Social.Business
         {
             new LikeCountBusiness().InflateWithLikesCount(EntityType, items.ToArray());
             new DislikeCountBusiness().InflateWithDislikesCount(EntityType, items.ToArray());
-            new UserBusiness().InflateWithUsernameAndProfilePictures(items.ToArray());
+            //new UserBusiness().InflateWithUsernameAndProfilePictures(items.ToArray());
             AugmentWithEntitiesInfo(items);
             base.ModifyListBeforeReturning(items);
         }
