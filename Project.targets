@@ -1,6 +1,10 @@
 <Project>
 
   <ItemGroup>
+    <Reference Include="Holism.Social.Models">
+      <HintPath>/HolismDotNet/Social/Packages/Holism.Social.Models.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Holism.Social.DataAccess">
       <HintPath>/HolismDotNet/Social/Packages/Holism.Social.DataAccess.dll</HintPath>
       <Private>True</Private>
@@ -10,7 +14,5 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  
-  <Import Project="/HolismDotNet/Entity/Project.targets" />
   
 </Project>
