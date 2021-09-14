@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="/HolismDotNet/Framework/DotNet.targets" />
+  <Import Project="/HolismDotNet/Infra/DotNet.targets" />
 
   <PropertyGroup>
     <AssemblyName>Holism.Social.Models</AssemblyName>
     <RootNamespace>Holism.Social.Models</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="/HolismDotNet/Framework/Models.targets" />
-  <Import Project="/HolismDotNet/Framework/Reusable.targets" />
+  <Import Project="/HolismDotNet/Infra/Models.targets" />
+  <Import Project="/HolismDotNet/Infra/Reusable.targets" />
 
 </Project>

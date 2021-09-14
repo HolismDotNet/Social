@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <Import Project="/HolismDotNet/Framework/DotNet.targets" />
+  <Import Project="/HolismDotNet/Infra/DotNet.targets" />
 
   <PropertyGroup>
     <AssemblyName>Holism.Social.Api</AssemblyName>
     <RootNamespace>Holism.Social.Api</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="/HolismDotNet/Framework/Api.targets" />
-  <Import Project="/HolismDotNet/Framework/Reusable.targets" />
+  <Import Project="/HolismDotNet/Infra/Api.targets" />
+  <Import Project="/HolismDotNet/Infra/Reusable.targets" />
 
 </Project>

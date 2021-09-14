@@ -6,7 +6,7 @@
     <RootNamespace>Holism.Ticketing.AdHoc</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="/HolismDotNet/Framework/ProjectAdHoc.targets" />
+  <Import Project="/HolismDotNet/Infra/ProjectAdHoc.targets" />
 
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj" />

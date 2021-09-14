@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="/HolismDotNet/Framework/DotNet.targets" />
+  <Import Project="/HolismDotNet/Infra/DotNet.targets" />
 
   <PropertyGroup>
     <AssemblyName>Holism.Social.DataAccess</AssemblyName>
     <RootNamespace>Holism.Social.DataAccess</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="/HolismDotNet/Framework/DataAccess.targets" />
-  <Import Project="/HolismDotNet/Framework/Reusable.targets" />
+  <Import Project="/HolismDotNet/Infra/DataAccess.targets" />
+  <Import Project="/HolismDotNet/Infra/Reusable.targets" />
 
 </Project>
