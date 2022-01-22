@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Social;
 
-namespace Holism.Social.Business
+public enum SocialItem
 {
-    public enum SocialItem
-    {
-        Like = 1,
-        Dislike = 2,
-        View = 3,
-        Comment = 4
-    }
+    Like = 1,
+    Dislike = 2,
+    View = 3,
+    Comment = 4
 }
