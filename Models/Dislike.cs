@@ -1,22 +1,19 @@
-using System;
+namespace Social;
 
-namespace Holism.Social.Models
+public class Dislike : IEntity
 {
-    public class Dislike : Holism.Models.IEntity
+    public Dislike()
     {
-        public Dislike()
-        {
-            RelatedItems = new System.Dynamic.ExpandoObject();
-        }
-
-        public long Id { get; set; }
-
-        public Guid UserGuid { get; set; }
-
-        public Guid EntityTypeGuid { get; set; }
-
-        public Guid EntityGuid { get; set; }
-
-        public dynamic RelatedItems { get; set; }
+        RelatedItems = new ExpandoObject();
     }
+
+    public long Id { get; set; }
+
+    public Guid UserGuid { get; set; }
+
+    public Guid EntityTypeGuid { get; set; }
+
+    public Guid EntityGuid { get; set; }
+
+    public dynamic RelatedItems { get; set; }
 }

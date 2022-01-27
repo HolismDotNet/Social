@@ -1,72 +1,68 @@
-using Holism.Social.Models;
-using Holism.DataAccess;
+namespace Social;
 
-namespace Holism.Social.DataAccess
+public class Repository
 {
-    public class Repository
+    public static Repository<Social.CommentCount> CommentCount
     {
-        public static Repository<Comment> Comment
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<Comment>(new SocialContext());
-            }
+            return new Repository<Social.CommentCount>(new SocialContext());
         }
+    }
 
-        public static Repository<CommentCount> CommentCount
+    public static Repository<Social.Comment> Comment
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<CommentCount>(new SocialContext());
-            }
+            return new Repository<Social.Comment>(new SocialContext());
         }
+    }
 
-        public static Repository<Dislike> Dislike
+    public static Repository<Social.DislikeCount> DislikeCount
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<Dislike>(new SocialContext());
-            }
+            return new Repository<Social.DislikeCount>(new SocialContext());
         }
+    }
 
-        public static Repository<DislikeCount> DislikeCount
+    public static Repository<Social.Dislike> Dislike
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<DislikeCount>(new SocialContext());
-            }
+            return new Repository<Social.Dislike>(new SocialContext());
         }
+    }
 
-        public static Repository<Like> Like
+    public static Repository<Social.LikeCount> LikeCount
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<Like>(new SocialContext());
-            }
+            return new Repository<Social.LikeCount>(new SocialContext());
         }
+    }
 
-        public static Repository<LikeCount> LikeCount
+    public static Repository<Social.Like> Like
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<LikeCount>(new SocialContext());
-            }
+            return new Repository<Social.Like>(new SocialContext());
         }
+    }
 
-        public static Repository<View> View
+    public static Repository<Social.ViewCount> ViewCount
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<View>(new SocialContext());
-            }
+            return new Repository<Social.ViewCount>(new SocialContext());
         }
+    }
 
-        public static Repository<ViewCount> ViewCount
+    public static Repository<Social.View> View
+    {
+        get
         {
-            get
-            {
-                return new Holism.DataAccess.Repository<ViewCount>(new SocialContext());
-            }
+            return new Repository<Social.View>(new SocialContext());
         }
     }
 }

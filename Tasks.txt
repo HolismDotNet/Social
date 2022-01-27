@@ -1,9 +1,0 @@
-Create a sharding mechanism somehow
-
-*******************************
-
-Create the ability to report any entity for a list of given reasons that people can choose from
-
-*******************************
-
-Create a UI for any given entity that has three tab => newest, most favorite, and random

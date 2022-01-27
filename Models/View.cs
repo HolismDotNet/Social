@@ -1,22 +1,19 @@
-using System;
+namespace Social;
 
-namespace Holism.Social.Models
+public class View : IEntity
 {
-    public class View : Holism.Models.IEntity
+    public View()
     {
-        public View()
-        {
-            RelatedItems = new System.Dynamic.ExpandoObject();
-        }
-
-        public long Id { get; set; }
-
-        public Guid UserGuid { get; set; }
-
-        public Guid EntityTypeGuid { get; set; }
-
-        public Guid EntityGuid { get; set; }
-
-        public dynamic RelatedItems { get; set; }
+        RelatedItems = new ExpandoObject();
     }
+
+    public long Id { get; set; }
+
+    public Guid UserGuid { get; set; }
+
+    public Guid EntityTypeGuid { get; set; }
+
+    public Guid EntityGuid { get; set; }
+
+    public dynamic RelatedItems { get; set; }
 }

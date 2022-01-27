@@ -1,33 +1,27 @@
-using Holism.DataAccess;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using Holism.Social.Models;
+namespace Social;
 
-namespace Holism.Social.DataAccess
+public class SocialContext : DatabaseContext
 {
-    public class SocialContext : DatabaseContext
+    public override string ConnectionStringName => "Social";
+
+    public DbSet<Social.CommentCount> CommentCounts { get; set; }
+
+    public DbSet<Social.Comment> Comments { get; set; }
+
+    public DbSet<Social.DislikeCount> DislikeCounts { get; set; }
+
+    public DbSet<Social.Dislike> Dislikes { get; set; }
+
+    public DbSet<Social.LikeCount> LikeCounts { get; set; }
+
+    public DbSet<Social.Like> Likes { get; set; }
+
+    public DbSet<Social.ViewCount> ViewCounts { get; set; }
+
+    public DbSet<Social.View> Views { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        public override string ConnectionStringName => "Social";
-
-        public DbSet<Comment> Comments { get; set; }
-        
-        public DbSet<CommentCount> CommentCounts { get; set; }
-
-        public DbSet<Dislike> Dislikes { get; set; }
-
-        public DbSet<DislikeCount> DislikeCounts { get; set; }
-
-        public DbSet<Like> Likes { get; set; }
-
-        public DbSet<LikeCount> LikeCounts { get; set; }
-
-        public DbSet<View> Views { get; set; }
-
-        public DbSet<ViewCount> ViewCounts { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
+        base.OnModelCreating(builder);
     }
 }

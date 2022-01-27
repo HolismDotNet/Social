@@ -1,0 +1,183 @@
+{
+    "name": "Social",
+    "tables": [
+        {
+            "name": "Comments",
+            "columns": [
+                {
+                    "name": "UserGuid"
+                },
+                {
+                    "name": "Date"
+                },
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                },
+                {
+                    "name": "Body"
+                },
+                {
+                    "name": "IsApproved"
+                }
+            ]
+        },
+        {
+            "name": "CommentCounts",
+            "columns": [
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                },
+                {
+                    "name": "Count"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "Dislikes",
+            "columns": [
+                {
+                    "name": "UserGuid"
+                },
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "UserGuid",
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "DislikeCounts",
+            "columns": [
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                },
+                {
+                    "name": "Count"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "Likes",
+            "columns": [
+                {
+                    "name": "UserGuid"
+                },
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "UserGuid",
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "LikeCounts",
+            "columns": [
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                },
+                {
+                    "name": "Count"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "Views",
+            "columns": [
+                {
+                    "name": "UserGuid"
+                },
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                }
+            ],
+            "indexes": [
+                {
+                    "columns": [
+                        "UserGuid",
+                        "EntityTypeGuid",
+                        "EntityGuid"
+                    ],
+                    "isUnique": true
+                }
+            ]
+        },
+        {
+            "name": "ViewCounts",
+            "columns": [
+                {
+                    "name": "EntityTypeGuid"
+                },
+                {
+                    "name": "EntityGuid"
+                },
+                {
+                    "name": "Count"
+                }
+            ]
+        }
+    ]
+}

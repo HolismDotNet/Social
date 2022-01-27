@@ -1,22 +1,19 @@
-using System;
+namespace Social;
 
-namespace Holism.Social.Models
+public class CommentCount : IEntity
 {
-    public class CommentCount : Holism.Models.IEntity
+    public CommentCount()
     {
-        public CommentCount()
-        {
-            RelatedItems = new System.Dynamic.ExpandoObject();
-        }
-
-        public long Id { get; set; }
-
-        public Guid EntityTypeGuid { get; set; }
-
-        public Guid EntityGuid { get; set; }
-
-        public long Count { get; set; }
-
-        public dynamic RelatedItems { get; set; }
+        RelatedItems = new ExpandoObject();
     }
+
+    public long Id { get; set; }
+
+    public Guid EntityTypeGuid { get; set; }
+
+    public Guid EntityGuid { get; set; }
+
+    public string Count { get; set; }
+
+    public dynamic RelatedItems { get; set; }
 }
