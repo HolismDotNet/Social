@@ -19,7 +19,7 @@ public class Comment : IEntity
 
     public string Body { get; set; }
 
-    public string IsApproved { get; set; }
+    public bool IsApproved { get; set; }
 
     public dynamic RelatedItems { get; set; }
 }

@@ -20,7 +20,8 @@
                     "name": "Body"
                 },
                 {
-                    "name": "IsApproved"
+                    "name": "IsApproved",
+                    "type": "boolean"
                 }
             ]
         },
@@ -34,7 +35,8 @@
                     "name": "EntityGuid"
                 },
                 {
-                    "name": "Count"
+                    "name": "Count",
+                    "type": "long"
                 }
             ],
             "indexes": [
@@ -81,7 +83,8 @@
                     "name": "EntityGuid"
                 },
                 {
-                    "name": "Count"
+                    "name": "Count",
+                    "type": "long"
                 }
             ],
             "indexes": [
@@ -128,7 +131,8 @@
                     "name": "EntityGuid"
                 },
                 {
-                    "name": "Count"
+                    "name": "Count",
+                    "type": "long"
                 }
             ],
             "indexes": [
@@ -175,7 +179,8 @@
                     "name": "EntityGuid"
                 },
                 {
-                    "name": "Count"
+                    "name": "Count",
+                    "type": "long"
                 }
             ]
         }

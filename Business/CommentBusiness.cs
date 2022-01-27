@@ -29,7 +29,7 @@ public class CommentBusiness : Business<Comment, Comment>
     {
         if (!listParameters.HasSorts)
         {
-            listParameters.AddSort<Comment>(i => i.Date, SortDirection.Descending);
+            listParameters.AddSort<Comment>(i => i.UtcDate, SortDirection.Descending);
         }
         return base.GetList(listParameters);
     }
@@ -87,7 +87,7 @@ public class CommentBusiness : Business<Comment, Comment>
         comment.UserGuid = userGuid;
         comment.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         comment.Body = body;
-        comment.Date = DateTime.Now;
+        comment.UtcDate = UniversalDateTime.Now;
         comment.EntityGuid = entityGuid;
         comment.IsApproved = false;
         return Create(comment);
@@ -103,7 +103,7 @@ public class CommentBusiness : Business<Comment, Comment>
             AugmentWithEntitiesInfo(new List<Comment> { item });
         }
         item.RelatedItems.TimeAgo = "todo: time ago";
-        new EntityTypeBusiness().InflateWithEntityType(item);
+        // new EntityTypeBusiness().InflateWithEntityType(item);
     }
 
     protected override void ModifyListBeforeReturning(List<Comment> items)

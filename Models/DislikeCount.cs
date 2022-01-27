@@ -13,7 +13,7 @@ public class DislikeCount : IEntity
 
     public Guid EntityGuid { get; set; }
 
-    public string Count { get; set; }
+    public long Count { get; set; }
 
     public dynamic RelatedItems { get; set; }
 }
