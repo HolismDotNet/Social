@@ -1,6 +1,6 @@
 ﻿namespace Social;
 
-public interface ISocialBusiness<Entity> where Entity : IGuidEntity, new()
+public interface ISocialBusiness<Entity> where Entity : IGuid, new()
 {
     public string EntityType { get; }
 
