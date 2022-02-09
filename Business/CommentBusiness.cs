@@ -2,7 +2,7 @@
 
 public class CommentBusiness : Business<Comment, Comment>
 {
-    public const string EntityType = "Comment";
+    public override string EntityType => "Comment";
 
     private const string EntityInfoPropertyName = "Entity";
 
