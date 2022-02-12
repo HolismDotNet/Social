@@ -2,9 +2,9 @@
 
 public class ViewBusiness : Business<View, View>
 {
-    protected override Repository<View> WriteRepository => Repository.View;
+    protected override Write<View> Write => Repository.View;
 
-    protected override ReadRepository<View> ReadRepository => Repository.View;
+    protected override Read<View> Read => Repository.View;
 
     public void RegisterView(Guid userGuid, string entityType, Guid entityGuid)
     {
@@ -28,7 +28,7 @@ public class ViewBusiness : Business<View, View>
         var entityGuguidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
         var inflatedProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
         var entityGuids = objects.Select(i => (Guid)entityGuguidProperty.GetValue(i)).ToList();
-        var views = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var views = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var @object in objects)
         {
             var view = views.FirstOrDefault(i => i.EntityGuid == (Guid)entityGuguidProperty.GetValue(@object));
@@ -51,7 +51,7 @@ public class ViewBusiness : Business<View, View>
         var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
         var relatedItemsProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
         var entityGuid = (Guid)guidProperty.GetValue(@object);
-        var view = ReadRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
+        var view = Read.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
         ExpandoObject expando = (ExpandoObject)relatedItemsProperty.GetValue(@object);
         expando.AddProperty("Viewed", view != null ? true : false);
         relatedItemsProperty.SetValue(@object, expando);
@@ -69,21 +69,21 @@ public class ViewBusiness : Business<View, View>
         view.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         view.EntityGuid = entityGuid;
         view.UserGuid = userGuid;
-        WriteRepository.Create(view);
+        Write.Create(view);
         new ViewCountBusiness().IncreaseViewsCount(entityType, entityGuid);
     }
 
     private View GetView(Guid userGuid, string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var view = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
+        var view = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
         return view;
     }
 
     public ListResult<View> GetViewedItems(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var viewdItems = ReadRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var viewdItems = Read.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return viewdItems;
     }
 
@@ -98,20 +98,20 @@ public class ViewBusiness : Business<View, View>
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var query = $@"
 delete
-from {WriteRepository.TableName}
+from {Write.TableName}
 where EntityTypeGuid = '{entityTypeGuid}'
 and EntityGuid = '{entityGuid}'
         ";
-        WriteRepository.Run(query);
+        Write.Run(query);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }

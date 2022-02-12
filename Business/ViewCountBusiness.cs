@@ -2,23 +2,23 @@
 
 public class ViewCountBusiness : Business<ViewCount, ViewCount>
 {
-    protected override Repository<ViewCount> WriteRepository => Repository.ViewCount;
+    protected override Write<ViewCount> Write => Repository.ViewCount;
 
-    protected override ReadRepository<ViewCount> ReadRepository => Repository.ViewCount;
+    protected override Read<ViewCount> Read => Repository.ViewCount;
 
     private const string ViewsCountPropertyName = "ViewsCount";
 
     private ViewCount GetViewCount(string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var viewCounts = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var viewCounts = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         return viewCounts;
     }
 
     public Dictionary<Guid, long> GetViewCounts(string entityType, List<Guid> entityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var viewCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var viewCounts = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         var result = viewCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
         return result;
     }
@@ -38,7 +38,7 @@ public class ViewCountBusiness : Business<ViewCount, ViewCount>
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         listParameters.AddFilter<ViewCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
         listParameters.AddSort<ViewCount>(i => i.Count, SortDirection.Descending);
-        var viewCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var viewCounts = Read.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return viewCounts;
     }
 
@@ -98,27 +98,27 @@ public class ViewCountBusiness : Business<ViewCount, ViewCount>
             viewCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             viewCount.EntityGuid = entityGuid;
             viewCount.Count = 1;
-            WriteRepository.Create(viewCount);
+            Write.Create(viewCount);
             return;
         }
         viewCount.Count += 1;
-        WriteRepository.Update(viewCount);
+        Write.Update(viewCount);
     }
 
     public void RemoveViewCount(string entityType, Guid entityGuid)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var viewCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-        WriteRepository.Delete(viewCount);
+        Write.Delete(viewCount);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }

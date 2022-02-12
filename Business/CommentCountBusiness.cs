@@ -2,23 +2,23 @@
 
 public class CommentCountBusiness : Business<CommentCount, CommentCount>
 {
-    protected override Repository<CommentCount> WriteRepository => Repository.CommentCount;
+    protected override Write<CommentCount> Write => Repository.CommentCount;
 
-    protected override ReadRepository<CommentCount> ReadRepository => Repository.CommentCount;
+    protected override Read<CommentCount> Read => Repository.CommentCount;
 
     private const string CommentsCountPropertyName = "CommentsCount";
 
     private CommentCount GetCommentCount(string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var commentCount = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var commentCount = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         return commentCount;
     }
 
     public Dictionary<Guid, long> GetCommentCounts(string entityType, List<Guid> entityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var commentCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var commentCounts = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         var result = commentCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
         return result;
     }
@@ -38,7 +38,7 @@ public class CommentCountBusiness : Business<CommentCount, CommentCount>
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         listParameters.AddFilter<CommentCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
         listParameters.AddSort<CommentCount>(i => i.Count, SortDirection.Descending);
-        var commentCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var commentCounts = Read.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return commentCounts;
     }
 
@@ -98,11 +98,11 @@ public class CommentCountBusiness : Business<CommentCount, CommentCount>
             commentCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             commentCount.EntityGuid = entityGuid;
             commentCount.Count = 1;
-            WriteRepository.Create(commentCount);
+            Write.Create(commentCount);
             return;
         }
         commentCount.Count += 1;
-        WriteRepository.Update(commentCount);
+        Write.Update(commentCount);
     }
 
     public void DecreaseCommentsCount(string entityType, Guid entityGuid)
@@ -115,11 +115,11 @@ public class CommentCountBusiness : Business<CommentCount, CommentCount>
         commentCount.Count -= 1;
         if (commentCount.Count < 1)
         {
-            WriteRepository.Delete(commentCount);
+            Write.Delete(commentCount);
         }
         else
         {
-            WriteRepository.Update(commentCount);
+            Write.Update(commentCount);
         }
     }
 
@@ -127,16 +127,16 @@ public class CommentCountBusiness : Business<CommentCount, CommentCount>
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var commentCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-        WriteRepository.Delete(commentCount);
+        Write.Delete(commentCount);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }

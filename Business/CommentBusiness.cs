@@ -6,9 +6,9 @@ public class CommentBusiness : Business<Comment, Comment>
 
     private const string EntityInfoPropertyName = "Entity";
 
-    protected override Repository<Comment> WriteRepository => Repository.Comment;
+    protected override Write<Comment> Write => Repository.Comment;
 
-    protected override ReadRepository<Comment> ReadRepository => Repository.Comment;
+    protected override Read<Comment> Read => Repository.Comment;
 
     private static Dictionary<Guid, Func<List<Guid>, Dictionary<Guid, object>>> entitiesAugmenter = new Dictionary<Guid, Func<List<Guid>, Dictionary<Guid, object>>>();
 
@@ -44,29 +44,29 @@ public class CommentBusiness : Business<Comment, Comment>
 
     public void ToggleApprovedState(long id)
     {
-        var comment = WriteRepository.Get(id);
+        var comment = Write.Get(id);
         comment.IsApproved = !comment.IsApproved;
         Update(comment);
     }
 
     public void ApproveItems(List<long> ids)
     {
-        var comments = WriteRepository.GetList(ids);
+        var comments = Write.GetList(ids);
         foreach (var comment in comments)
         {
             comment.IsApproved = true;
         }
-        WriteRepository.BulkUpdate(comments);
+        Write.BulkUpdate(comments);
     }
 
     public void DisapproveItems(List<long> ids)
     {
-        var comments = WriteRepository.GetList(ids);
+        var comments = Write.GetList(ids);
         foreach (var comment in comments)
         {
             comment.IsApproved = false;
         }
-        WriteRepository.BulkUpdate(comments);
+        Write.BulkUpdate(comments);
     }
 
     public ListResult<Comment> GetComments(string entityType, Guid entityGuid, int pageNumber)
@@ -139,20 +139,20 @@ public class CommentBusiness : Business<Comment, Comment>
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var query = $@"
 delete
-from {WriteRepository.TableName}
+from {Write.TableName}
 where EntityTypeGuid = '{entityTypeGuid}'
 and EntityGuid = '{entityGuid}'
         ";
-        WriteRepository.Run(query);
+        Write.Run(query);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord.Id);
+            Write.Delete(orphanRecord.Id);
         }
     }
 }

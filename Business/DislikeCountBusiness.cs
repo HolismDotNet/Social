@@ -2,23 +2,23 @@
 
 public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
 {
-    protected override Repository<DislikeCount> WriteRepository => Repository.DislikeCount;
+    protected override Write<DislikeCount> Write => Repository.DislikeCount;
 
-    protected override ReadRepository<DislikeCount> ReadRepository => Repository.DislikeCount;
+    protected override Read<DislikeCount> Read => Repository.DislikeCount;
 
     private const string DislikesCountPropertyName = "DislikesCount";
 
     private DislikeCount GetDislikeCount(string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likeCount = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var likeCount = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         return likeCount;
     }
 
     public Dictionary<Guid, long> GetDislikeCounts(string entityType, List<Guid> entityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likeCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var likeCounts = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         var result = likeCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
         return result;
     }
@@ -38,7 +38,7 @@ public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         listParameters.AddFilter<DislikeCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
         listParameters.AddSort<DislikeCount>(i => i.Count, SortDirection.Descending);
-        var likeCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var likeCounts = Read.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return likeCounts;
     }
 
@@ -98,11 +98,11 @@ public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
             likeCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             likeCount.EntityGuid = entityGuid;
             likeCount.Count = 1;
-            WriteRepository.Create(likeCount);
+            Write.Create(likeCount);
             return;
         }
         likeCount.Count += 1;
-        WriteRepository.Update(likeCount);
+        Write.Update(likeCount);
     }
 
     public void DecreaseDislikesCount(string entityType, Guid entityGuid)
@@ -115,11 +115,11 @@ public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
         likeCount.Count -= 1;
         if (likeCount.Count < 1)
         {
-            WriteRepository.Delete(likeCount);
+            Write.Delete(likeCount);
         }
         else
         {
-            WriteRepository.Update(likeCount);
+            Write.Update(likeCount);
         }
     }
 
@@ -127,16 +127,16 @@ public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var dislikeCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-        WriteRepository.Delete(dislikeCount);
+        Write.Delete(dislikeCount);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }

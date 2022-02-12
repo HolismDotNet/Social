@@ -2,9 +2,9 @@
 
 public class DislikeBusiness : Business<Dislike, Dislike>
 {
-    protected override Repository<Dislike> WriteRepository => Repository.Dislike;
+    protected override Read<Dislike> Read => Repository.Dislike;
 
-    protected override ReadRepository<Dislike> ReadRepository => Repository.Dislike;
+    protected override Write<Dislike> Write => Repository.Dislike;
 
     public void ToggleDislike(Guid userGuid, string entityType, Guid entityGuid)
     {
@@ -31,7 +31,7 @@ public class DislikeBusiness : Business<Dislike, Dislike>
         var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
         var inflatedProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
         var entityGuids = objects.Select(i => (Guid)guidProperty.GetValue(i)).ToList();
-        var dislikes = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var dislikes = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var @object in objects)
         {
             var dislike = dislikes.FirstOrDefault(i => i.EntityGuid == (Guid)guidProperty.GetValue(@object));
@@ -54,7 +54,7 @@ public class DislikeBusiness : Business<Dislike, Dislike>
         var guidProperty = properties.FirstOrDefault(i => i.Name == "Guid");
         var relatedItemsProperty = properties.FirstOrDefault(i => i.Name == "RelatedItems");
         var entityGuid = (Guid)guidProperty.GetValue(@object);
-        var like = ReadRepository.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
+        var like = Read.All.FirstOrDefault(i => i.EntityTypeGuid == entityTypeGuid && i.UserGuid == userGuid && i.EntityGuid == entityGuid);
         ExpandoObject expando = (ExpandoObject)relatedItemsProperty.GetValue(@object);
         expando.AddProperty("Disliked", like != null ? true : false);
         relatedItemsProperty.SetValue(@object, expando);
@@ -72,7 +72,7 @@ public class DislikeBusiness : Business<Dislike, Dislike>
         like.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         like.EntityGuid = entityGuid;
         like.UserGuid = userGuid;
-        WriteRepository.Create(like);
+        Write.Create(like);
         new DislikeCountBusiness().IncreaseDislikesCount(entityType, entityGuid);
         new LikeBusiness().RemoveLike(entityType, userGuid, entityGuid);
     }
@@ -84,21 +84,21 @@ public class DislikeBusiness : Business<Dislike, Dislike>
         {
             return;
         }
-        WriteRepository.Delete(existingDislike);
+        Write.Delete(existingDislike);
         new DislikeCountBusiness().DecreaseDislikesCount(entityType, entityGuid);
     }
 
     private Dislike GetDislike(Guid userGuid, string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var like = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
+        var like = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid && i.UserGuid == userGuid);
         return like;
     }
 
     public ListResult<Dislike> GetDislikedItems(Guid userGuid, string entityType, ListParameters listParameters, List<Guid> excludedEntityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likedItems = ReadRepository.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var likedItems = Read.All.Where(i => i.UserGuid == userGuid && i.EntityTypeGuid == entityTypeGuid).Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return likedItems;
     }
 
@@ -113,20 +113,20 @@ public class DislikeBusiness : Business<Dislike, Dislike>
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var query = $@"
 delete
-from {WriteRepository.TableName}
+from {Write.TableName}
 where EntityTypeGuid = '{entityTypeGuid}'
 and EntityGuid = '{entityGuid}'
         ";
-        WriteRepository.Run(query);
+        Write.Run(query);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }

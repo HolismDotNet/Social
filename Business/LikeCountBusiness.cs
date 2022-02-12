@@ -2,23 +2,23 @@
 
 public class LikeCountBusiness : Business<LikeCount, LikeCount>
 {
-    protected override Repository<LikeCount> WriteRepository => Repository.LikeCount;
+    protected override Write<LikeCount> Write => Repository.LikeCount;
 
-    protected override ReadRepository<LikeCount> ReadRepository => Repository.LikeCount;
+    protected override Read<LikeCount> Read => Repository.LikeCount;
 
     private const string LikesCountPropertyName = "LikesCount";
 
     private LikeCount GetLikeCount(string entityType, Guid entityGuid)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likeCount = ReadRepository.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var likeCount = Read.Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         return likeCount;
     }
 
     public Dictionary<Guid, long> GetLikeCounts(string entityType, List<Guid> entityGuids)
     {
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likeCounts = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
+        var likeCounts = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && entityGuids.Contains(i.EntityGuid)).ToList();
         var result = likeCounts.ToDictionary(i => i.EntityGuid, i => i.Count);
         return result;
     }
@@ -38,7 +38,7 @@ public class LikeCountBusiness : Business<LikeCount, LikeCount>
         Guid entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         listParameters.AddFilter<LikeCount>(i => i.EntityTypeGuid, entityTypeGuid.ToString());
         listParameters.AddSort<LikeCount>(i => i.Count, SortDirection.Descending);
-        var likeCounts = ReadRepository.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
+        var likeCounts = Read.All.Where(i => !excludedEntityGuids.Contains(i.EntityGuid)).ApplyListParametersAndGetTotalCount(listParameters);
         return likeCounts;
     }
 
@@ -98,11 +98,11 @@ public class LikeCountBusiness : Business<LikeCount, LikeCount>
             likeCount.EntityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
             likeCount.EntityGuid = entityGuid;
             likeCount.Count = 1;
-            WriteRepository.Create(likeCount);
+            Write.Create(likeCount);
             return;
         }
         likeCount.Count += 1;
-        WriteRepository.Update(likeCount);
+        Write.Update(likeCount);
     }
 
     public void DecreaseLikesCount(string entityType, Guid entityGuid)
@@ -115,11 +115,11 @@ public class LikeCountBusiness : Business<LikeCount, LikeCount>
         likeCount.Count -= 1;
         if (likeCount.Count < 1)
         {
-            WriteRepository.Delete(likeCount);
+            Write.Delete(likeCount);
         }
         else
         {
-            WriteRepository.Update(likeCount);
+            Write.Update(likeCount);
         }
     }
 
@@ -127,16 +127,16 @@ public class LikeCountBusiness : Business<LikeCount, LikeCount>
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
         var likeCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
-        WriteRepository.Delete(likeCount);
+        Write.Delete(likeCount);
     }
 
     public void RemoveOrphanEntities(string entityType, List<Guid> entityGuids)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var orphanRecords = ReadRepository.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
+        var orphanRecords = Read.All.Where(i => i.EntityTypeGuid == entityTypeGuid && !entityGuids.Contains(i.EntityGuid)).ToList();
         foreach (var orphanRecord in orphanRecords)
         {
-            WriteRepository.Delete(orphanRecord);
+            Write.Delete(orphanRecord);
         }
     }
 }
