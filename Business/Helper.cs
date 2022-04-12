@@ -10,7 +10,7 @@ public class Helper
         new DislikeCountBusiness().RemoveDislikeCount(entityType, entityGuid);
         new CommentBusiness().RemoveComments(entityType, entityGuid);
         new CommentCountBusiness().RemoveCommentCount(entityType, entityGuid);
-        new ViewBusiness().RemoveViews(entityType, entityGuid);
+        new ReadBusiness().RemoveViews(entityType, entityGuid);
         new ViewCountBusiness().RemoveViewCount(entityType, entityGuid);
         //new ExcludedEntityBusiness().Include(entityType, entityGuid);
     }
@@ -23,7 +23,7 @@ public class Helper
         new DislikeCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
         new CommentBusiness().RemoveOrphanEntities(entityType, entityGuids);
         new CommentCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
-        new ViewBusiness().RemoveOrphanEntities(entityType, entityGuids);
+        new ReadBusiness().RemoveOrphanEntities(entityType, entityGuids);
         new ViewCountBusiness().RemoveOrphanEntities(entityType, entityGuids);
         //new ExcludedEntityBusiness().RemoveOrphanEntities(entityType, entityGuids);
     }
@@ -41,7 +41,7 @@ public class Helper
                     new DislikeBusiness().InflateWithDislikesInfo(entityType, entity, userGuid);
                     break;
                 case SocialItem.View:
-                    new ViewBusiness().InflateWithViewsInfo(entityType, entity, userGuid);
+                    new ReadBusiness().InflateWithViewsInfo(entityType, entity, userGuid);
                     break;
                 case SocialItem.Comment:
                     break;

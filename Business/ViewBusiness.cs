@@ -1,6 +1,6 @@
 ﻿namespace Social;
 
-public class ViewBusiness : Business<View, View>
+public class ReadBusiness : Business<View, View>
 {
     protected override Write<View> Write => Repository.View;
 
