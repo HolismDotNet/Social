@@ -126,7 +126,7 @@ public class DislikeCountBusiness : Business<DislikeCount, DislikeCount>
     public void RemoveDislikeCount(string entityType, Guid entityGuid)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var dislikeCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var dislikeCount = Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         Write.Delete(dislikeCount);
     }
 

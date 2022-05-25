@@ -126,7 +126,7 @@ public class LikeCountBusiness : Business<LikeCount, LikeCount>
     public void RemoveLikeCount(string entityType, Guid entityGuid)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var likeCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var likeCount = Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         Write.Delete(likeCount);
     }
 

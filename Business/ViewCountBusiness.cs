@@ -108,7 +108,7 @@ public class ViewCountBusiness : Business<ViewCount, ViewCount>
     public void RemoveViewCount(string entityType, Guid entityGuid)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var viewCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var viewCount = Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         Write.Delete(viewCount);
     }
 

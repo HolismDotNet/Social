@@ -126,7 +126,7 @@ public class CommentCountBusiness : Business<CommentCount, CommentCount>
     public void RemoveCommentCount(string entityType, Guid entityGuid)
     {
         var entityTypeGuid = new EntityTypeBusiness().GetGuid(entityType);
-        var commentCount = GetOrNull(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
+        var commentCount = Get(i => i.EntityTypeGuid == entityTypeGuid && i.EntityGuid == entityGuid);
         Write.Delete(commentCount);
     }
 
